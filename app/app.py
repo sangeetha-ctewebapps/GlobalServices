@@ -1,63 +1,62 @@
-Sure! Here's a Python Flask API code that implements the given User Story for the Bank's Document Verification Process for Loan Eligibility Assessment:
+Sure! Here's an example of a Python Flask API code that can handle the Bank's Document Verification Process for Loan Eligibility Assessment:
 
 ```python
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-@app.route('/loan_application', methods=['POST'])
-def loan_application():
-    # Get the loan application details from the request
-    loan_application_details = request.get_json()
+# Sample data for document verification
+documents = {
+    "identification": {
+        "required": True,
+        "verified": False
+    },
+    "proof_of_income": {
+        "required": True,
+        "verified": False
+    },
+    "credit_history": {
+        "required": True,
+        "verified": False
+    },
+    "employment_details": {
+        "required": True,
+        "verified": False
+    }
+}
 
-    # Extract the required documents from the loan application details
-    identification = loan_application_details.get('identification')
-    proof_of_income = loan_application_details.get('proof_of_income')
-    credit_history = loan_application_details.get('credit_history')
-    employment_details = loan_application_details.get('employment_details')
+@app.route('/loan-application', methods=['GET'])
+def get_document_checklist():
+    return jsonify(documents)
 
-    # Verify the provided documents
-    identification_verified = verify_document(identification)
-    proof_of_income_verified = verify_document(proof_of_income)
-    credit_history_verified = verify_document(credit_history)
-    employment_details_verified = verify_document(employment_details)
+@app.route('/loan-application', methods=['POST'])
+def verify_documents():
+    # Verify the provided documents by updating the verification status
+    for document in documents:
+        documents[document]['verified'] = request.json.get(document, False)
 
-    # Assess the applicant's eligibility for the loan
-    eligibility_status = assess_eligibility(identification_verified, proof_of_income_verified, credit_history_verified, employment_details_verified)
+    # Assess the applicant's eligibility based on the verified documents
+    eligibility = all(document['verified'] for document in documents.values())
 
-    # Generate a report indicating the applicant's eligibility status for the loan
-    report = generate_report(eligibility_status)
+    # Generate a report indicating the applicant's eligibility status
+    report = {
+        "eligibility": eligibility,
+        "documents": documents
+    }
 
     # Notify the bank employee of the applicant's eligibility status
-    notify_bank_employee(report)
+    # (you can implement the notification mechanism here)
 
-    # Return the eligibility status as a response
-    return jsonify({'eligibility_status': eligibility_status})
-
-def verify_document(document):
-    # Perform document verification logic here
-    # Return True if the document is verified, False otherwise
-    return True
-
-def assess_eligibility(identification_verified, proof_of_income_verified, credit_history_verified, employment_details_verified):
-    # Perform eligibility assessment logic here
-    # Return the eligibility status (e.g., 'eligible' or 'not eligible')
-    return 'eligible'
-
-def generate_report(eligibility_status):
-    # Generate a report indicating the eligibility status
-    # Return the report as a string
-    return f'Eligibility Status: {eligibility_status}'
-
-def notify_bank_employee(report):
-    # Notify the bank employee of the eligibility status
-    # Perform notification logic here (e.g., send an email or push notification)
-    print(report)
+    return jsonify(report)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 ```
 
-This code defines a Flask API with a single route `/loan_application` that accepts a POST request containing the loan application details as JSON. It then verifies the provided documents, assesses the applicant's eligibility for the loan, generates a report, and notifies the bank employee of the eligibility status. Finally, it returns the eligibility status as a response.
+In this code, we define two routes: `/loan-application` for getting the document checklist and verifying the documents. 
 
-Please note that this code only provides a basic implementation of the given User Story and may need further modifications to meet specific requirements or integrate with existing systems.
+The `GET` request to `/loan-application` returns the current checklist of required documents in the JSON format.
+
+The `POST` request to `/loan-application` expects the verification status of each document in the request body. It updates the verification status of each document accordingly, assesses the eligibility based on the verified documents, generates a report with the eligibility status and the verified documents, and returns the report in the JSON format.
+
+You can run this code on your local machine by installing the necessary Flask dependencies and executing the script.

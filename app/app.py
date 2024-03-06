@@ -1,72 +1,63 @@
-Sure! Here's a basic example of a Python Flask API code for the given user story:
+Here is an example of a Python Flask API code for the given User Story:
 
 ```python
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Define a route for document verification
-@app.route('/verify_documents', methods=['POST'])
-def verify_documents():
-    loan_application = request.get_json()
+# List of required documents for loan application
+required_documents = ["identification", "proof_of_income", "credit_history", "employment_details"]
 
-    # Perform document verification process
-    identification_verified = verify_identification(loan_application['identification'])
-    proof_of_income_verified = verify_proof_of_income(loan_application['proof_of_income'])
-    credit_history_verified = verify_credit_history(loan_application['credit_history'])
-    employment_details_verified = verify_employment_details(loan_application['employment_details'])
+@app.route('/loan/verify', methods=['POST'])
+def verify_loan_eligibility():
+    data = request.json
+    
+    # Check if all required documents are provided
+    if all(document in data for document in required_documents):
+        # Verify the provided documents
+        is_documents_verified = verify_documents(data)
+        
+        if is_documents_verified:
+            # Assess the applicant's eligibility for the loan
+            eligibility_status = assess_eligibility(data)
+            
+            # Generate a report indicating the applicant's eligibility status
+            report = generate_report(data, eligibility_status)
+            
+            # Notify the bank employee of the applicant's eligibility status
+            notify_employee(eligibility_status)
+            
+            return jsonify(report), 200
+        else:
+            return jsonify({"message": "Documents verification failed"}), 400
+    else:
+        return jsonify({"message": "Missing required documents"}), 400
 
-    # Assess loan eligibility based on the verified documents
-    loan_eligibility = assess_loan_eligibility(identification_verified, proof_of_income_verified, credit_history_verified, employment_details_verified)
+def verify_documents(data):
+    # Add verification logic here
+    # Example: Check if the provided documents are authentic and accurate
+    return True
 
+def assess_eligibility(data):
+    # Add eligibility assessment logic here
+    # Example: Calculate the applicant's eligibility based on the provided documents
+    return "Eligible" if data["proof_of_income"] > 5000 else "Not Eligible"
+
+def generate_report(data, eligibility_status):
     # Generate a report indicating the applicant's eligibility status
-    report = generate_eligibility_report(loan_eligibility)
+    report = {
+        "applicant_name": data["identification"]["name"],
+        "eligibility_status": eligibility_status
+    }
+    return report
 
+def notify_employee(eligibility_status):
     # Notify the bank employee of the applicant's eligibility status
-    notify_bank_employee(report)
+    # Add notification logic here
+    pass
 
-    return jsonify({'report': report}), 200
-
-# Helper functions for document verification and loan assessment
-def verify_identification(identification):
-    # Perform identification verification process
-    return True
-
-def verify_proof_of_income(proof_of_income):
-    # Perform proof of income verification process
-    return True
-
-def verify_credit_history(credit_history):
-    # Perform credit history verification process
-    return True
-
-def verify_employment_details(employment_details):
-    # Perform employment details verification process
-    return True
-
-def assess_loan_eligibility(identification_verified, proof_of_income_verified, credit_history_verified, employment_details_verified):
-    # Perform loan eligibility assessment based on the verified documents
-    return True
-
-def generate_eligibility_report(loan_eligibility):
-    # Generate a report indicating the applicant's eligibility status
-    return "Eligible" if loan_eligibility else "Not Eligible"
-
-def notify_bank_employee(report):
-    # Notify the bank employee of the applicant's eligibility status for further processing
-    print("Loan eligibility report: ", report)
-
-# Run the application
 if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-In this example, we define a Flask API with a single route `/verify_documents` that accepts a POST request containing the loan application data. The loan application data is expected to be in JSON format.
-
-Inside the `verify_documents` route, we perform the document verification process by calling helper functions such as `verify_identification`, `verify_proof_of_income`, `verify_credit_history`, and `verify_employment_details`. These functions can be replaced with actual logic to verify the provided documents.
-
-Next, we assess the loan eligibility based on the verified documents by calling the `assess_loan_eligibility` function. Again, this function can be replaced with actual logic to determine the loan eligibility.
-
-After assessing the loan eligibility, we generate a report indicating the applicant's eligibility status using the `generate_eligibility_report` function. Finally, we notify the bank employee of the applicant's eligibility status by calling the `notify_bank_employee` function.
-
-Please note that this is a basic example and you may need to modify it according to your specific requirements and business logic.
+Note: This is a basic skeleton code that you can modify and enhance based on your specific requirements and database connections.

@@ -1,49 +1,64 @@
-Sure! Here's an example of a Python Flask API code for the given user story:
+Here's a basic Python Flask API code that can be used for the given user story:
 
 ```python
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Define a list of required documents
-required_documents = ["identification", "proof of income", "credit history", "employment details"]
-
-@app.route('/loan/verify', methods=['POST'])
+@app.route('/loan/verification', methods=['POST'])
 def verify_loan_eligibility():
-    # Get the applicant's documents from the request
-    applicant_documents = request.json
+    loan_application = request.get_json()
 
-    # Check if all required documents are provided
-    missing_documents = [doc for doc in required_documents if doc not in applicant_documents]
-    if missing_documents:
-        return jsonify(error=f"Missing documents: {', '.join(missing_documents)}"), 400
+    # Verify identification document
+    if 'identification' not in loan_application:
+        return jsonify({'error': 'Identification document is missing'}), 400
 
-    # Perform document verification (dummy implementation)
-    is_documents_verified = True  # Replace with your actual document verification logic
+    # Verify proof of income document
+    if 'proof_of_income' not in loan_application:
+        return jsonify({'error': 'Proof of income document is missing'}), 400
 
-    if not is_documents_verified:
-        return jsonify(error="Document verification failed"), 400
+    # Verify credit history document
+    if 'credit_history' not in loan_application:
+        return jsonify({'error': 'Credit history document is missing'}), 400
 
-    # Perform loan eligibility assessment (dummy implementation)
-    is_eligible = True  # Replace with your actual loan eligibility assessment logic
+    # Verify employment details document
+    if 'employment_details' not in loan_application:
+        return jsonify({'error': 'Employment details document is missing'}), 400
 
-    # Generate the eligibility report
-    report = {
-        "applicant_name": applicant_documents.get("identification").get("name"),
-        "eligibility_status": "Eligible" if is_eligible else "Not Eligible"
-    }
+    # Perform document verification logic here
+    # ...
 
-    # Notify the bank employee of the eligibility status
-    notify_bank_employee(report)
+    # Assess loan eligibility based on verified documents
+    eligibility_status = assess_loan_eligibility(loan_application)
 
-    return jsonify(report), 200
+    # Generate eligibility report
+    eligibility_report = generate_eligibility_report(loan_application, eligibility_status)
 
-def notify_bank_employee(report):
-    # Replace with your actual notification logic, such as sending an email or message
-    print(f"Applicant: {report['applicant_name']}, Eligibility Status: {report['eligibility_status']}")
+    # Notify bank employee of the eligibility status
+    notify_bank_employee(loan_application['applicant_id'], eligibility_status)
+
+    return jsonify(eligibility_report), 200
+
+def assess_loan_eligibility(loan_application):
+    # Perform eligibility assessment logic here
+    # ...
+
+    return eligibility_status
+
+def generate_eligibility_report(loan_application, eligibility_status):
+    # Generate eligibility report logic here
+    # ...
+
+    return eligibility_report
+
+def notify_bank_employee(applicant_id, eligibility_status):
+    # Notify bank employee logic here
+    # ...
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 ```
 
-In this code, we define a Flask API endpoint `/loan/verify` that accepts a POST request with the applicant's documents in the JSON format. We first check if all the required documents are provided and return an error response if any document is missing. Then, we perform document verification and loan eligibility assessment (dummy implementations) based on your actual logic. Finally, we generate a report indicating the eligibility status and notify the bank employee. You can replace the dummy logic with your actual document verification and loan eligibility assessment logic.
+This code defines a Flask API that listens for POST requests on the '/loan/verification' endpoint. It expects a JSON payload containing the loan application details, including the required documents. It then verifies the presence of each required document, performs document verification logic, assesses the loan eligibility based on the verified documents, generates an eligibility report, and notifies the bank employee of the eligibility status.
+
+Please note that this code only provides a basic structure and you will need to implement the actual document verification, eligibility assessment, report generation, and notification logic according to your specific requirements.
